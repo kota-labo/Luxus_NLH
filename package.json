@@ -1,0 +1,13 @@
+{
+  "name": "luxus-poker",
+  "version": "1.0.0",
+  "description": "Luxu's — Luxury Poker Experience",
+  "scripts": {
+    "dev":     "vite --port 8080 --host",
+    "build":   "vite build",
+    "preview": "vite preview --port 8080"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

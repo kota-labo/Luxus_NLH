@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="midnight" data-card="four-color">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luxu's Poker</title>
+  <link rel="stylesheet" href="style.css?v=14">
+</head>
+<body>
+
+  <!-- セットアップ画面 -->
+  <div id="setup-screen" class="screen">
+    <div class="setup-container">
+      <div class="setup-logo">
+        <div class="luxus-top">
+          <svg class="luxus-sparkle-svg" width="20" height="20" viewBox="0 0 20 20">
+            <line x1="10" y1="0" x2="10" y2="20" stroke="rgba(200,220,255,.7)" stroke-width="1.2"/>
+            <line x1="0" y1="10" x2="20" y2="10" stroke="rgba(200,220,255,.7)" stroke-width="1.2"/>
+            <line x1="2.9" y1="2.9" x2="17.1" y2="17.1" stroke="rgba(200,220,255,.38)" stroke-width=".8"/>
+            <line x1="17.1" y1="2.9" x2="2.9" y2="17.1" stroke="rgba(200,220,255,.38)" stroke-width=".8"/>
+            <circle cx="10" cy="10" r="2.2" fill="rgba(225,238,255,.95)"/>
+          </svg>
+          <div class="luxus-suits-row">
+            <span>♠</span><span>♦</span><span>♠</span><span>♠</span><span>♦</span>
+          </div>
+        </div>
+        <div class="luxus-title-wrap">
+          <h1 class="luxus-title">Luxu's</h1>
+          <svg class="luxus-swoosh" viewBox="0 0 440 24" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="rgba(160,180,220,0)"/>
+                <stop offset="18%"  stop-color="rgba(160,180,220,.42)"/>
+                <stop offset="50%"  stop-color="rgba(215,230,255,.68)"/>
+                <stop offset="82%"  stop-color="rgba(160,180,220,.42)"/>
+                <stop offset="100%" stop-color="rgba(160,180,220,0)"/>
+              </linearGradient>
+            </defs>
+            <path d="M10,20 C70,6 150,4 210,16 C270,26 360,18 430,6"
+              fill="none" stroke="url(#sg)" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="luxus-bottom-deco">
+          <span class="luxus-deco-line"></span>
+          <span class="luxus-deco-suit">♣</span>
+          <span class="luxus-deco-long-line"></span>
+          <span class="luxus-deco-suit">♥</span>
+          <span class="luxus-deco-line luxus-deco-line-r"></span>
+        </div>
+        <p class="luxus-subtitle">LUXURY POKER EXPERIENCE</p>
+      </div>
+
+      <div class="setup-form">
+        <div class="form-group">
+          <label>プレイヤー数</label>
+          <div class="player-select">
+            <button class="player-num" data-val="2">2</button>
+            <button class="player-num" data-val="3">3</button>
+            <button class="player-num selected" data-val="4">4</button>
+            <button class="player-num" data-val="5">5</button>
+            <button class="player-num" data-val="6">6</button>
+          </div>
+        </div>
+        <button class="start-btn" onclick="initGame()">PLAY</button>
+        <p class="setup-note">100BB スタート</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ゲーム画面 -->
+  <div id="game-screen" class="screen hidden">
+
+    <!-- ヘッダー -->
+    <div class="game-header">
+      <div class="game-header-right">
+        <div class="theme-wrap">
+          <button class="hdr-btn theme-btn" onclick="toggleThemeMenu()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+            </svg>
+            テーマ
+          </button>
+          <div id="theme-menu" class="theme-menu hidden">
+
+            <p class="theme-menu-title">テーブルテーマ</p>
+            <div class="theme-grid">
+              <button class="theme-opt" data-theme="midnight" onclick="setTheme('midnight')">
+                <span class="theme-swatch" style="background:linear-gradient(135deg,#1a3a7a,#060c18)"></span>Midnight
+              </button>
+              <button class="theme-opt" data-theme="crimson"  onclick="setTheme('crimson')">
+                <span class="theme-swatch" style="background:linear-gradient(135deg,#7a1a1a,#120808)"></span>Crimson
+              </button>
+              <button class="theme-opt" data-theme="galaxy"   onclick="setTheme('galaxy')">
+                <span class="theme-swatch" style="background:linear-gradient(135deg,#4a1a7a,#0e0814)"></span>Galaxy
+              </button>
+              <button class="theme-opt" data-theme="obsidian" onclick="setTheme('obsidian')">
+                <span class="theme-swatch" style="background:linear-gradient(135deg,#2a3a4a,#0c0e10)"></span>Obsidian
+              </button>
+              <button class="theme-opt" data-theme="luxus"    onclick="setTheme('luxus')">
+                <span class="theme-swatch" style="background:linear-gradient(135deg,#1a1e2e,#090b12)"></span>Luxu's
+              </button>
+            </div>
+
+            <div class="theme-divider"></div>
+            <p class="theme-menu-title">カードデザイン</p>
+            <div class="card-theme-grid">
+              <button class="card-theme-btn" data-card="blue"       onclick="setCardTheme('blue')">
+                <span class="card-swatch" style="background:linear-gradient(135deg,#1e3f78,#0e2550)"></span>Classic
+              </button>
+              <button class="card-theme-btn" data-card="four-color" onclick="setCardTheme('four-color')">
+                <span class="card-swatch card-swatch-4c"></span>4-Color
+              </button>
+              <button class="card-theme-btn" data-card="neon"       onclick="setCardTheme('neon')">
+                <span class="card-swatch card-swatch-neon"></span>Neon
+              </button>
+              <button class="card-theme-btn" data-card="minimal"    onclick="setCardTheme('minimal')">
+                <span class="card-swatch" style="background:linear-gradient(135deg,#e8ecf2,#d4dce8)"></span>Minimal
+              </button>
+              <button class="card-theme-btn" data-card="luxus"      onclick="setCardTheme('luxus')">
+                <span class="card-swatch card-swatch-luxus"></span>Luxu's
+              </button>
+              <button class="card-theme-btn" data-card="red"        onclick="setCardTheme('red')">
+                <span class="card-swatch" style="background:linear-gradient(135deg,#781e1e,#380808)"></span>Crimson
+              </button>
+            </div>
+
+          </div>
+        </div>
+        <button class="hdr-btn exit-btn" onclick="backToSetup()">退席</button>
+      </div>
+    </div>
+
+    <!-- テーブルビュー -->
+    <div class="table-viewport">
+
+      <div class="poker-table">
+        <div class="table-felt">
+          <!-- テーブル上部 Luxu's ブランド -->
+          <div class="table-brand">
+            <div class="tlb-suits">♠&ensp;♦&ensp;♣&ensp;♥</div>
+            <div class="tlb-name-row">
+              <span class="tlb-line-el"></span>
+              <span class="tlb-name">Luxu's</span>
+              <span class="tlb-line-el tlb-line-r"></span>
+            </div>
+          </div>
+          <div id="pot-display" class="pot-display">POT 0 BB</div>
+          <!-- 勝利バナー（コミュニティカード上に表示） -->
+          <div id="win-overlay" class="win-overlay hidden">
+            <div class="win-inner">
+              <div id="win-player-name" class="win-player-name"></div>
+              <div class="win-label">W I N S</div>
+              <div id="win-hand-name" class="win-hand-name"></div>
+              <div id="win-pot" class="win-pot"></div>
+            </div>
+          </div>
+          <div id="community-cards" class="community-cards"></div>
+          <div id="street-display" class="street-display">WAITING</div>
+        </div>
+      </div>
+      <div id="players" class="players-ring"></div>
+    </div>
+
+    <!-- 下部パネル -->
+    <div class="bottom-panel">
+      <div id="actions" class="actions-area"></div>
+      <div id="action-log" class="action-log"></div>
+    </div>
+
+  </div>
+
+  <script src="src/card.js?v=14"></script>
+  <script src="src/evaluator.js?v=14"></script>
+  <script src="src/game.js?v=14"></script>
+  <script src="src/ui.js?v=14"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs:/c/Users/nyach/AppData/Roaming/npm\")",
+      "Bash(npm --version)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(cmd.exe /c \"where node\")",
+      "Bash(cmd.exe /c \"where npm\")",
+      "Bash(cmd.exe /c \"where npx\")",
+      "Bash(cmd.exe /c \"where python\")",
+      "Bash(cmd.exe /c \"where python3\")",
+      "Bash(cmd.exe /c \"where php\")",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:tenfour-poker.com)",
+      "Bash(npm install:*)",
+      "Bash(where node:*)",
+      "Bash(where npm:*)",
+      "Bash(cmd.exe /c \"node --version && npm --version\")",
+      "Bash(cmd.exe /c \"node --version\")",
+      "Bash(cmd.exe /c \"where node 2>&1 & echo EXIT:%errorlevel%\")"
+    ]
+  }
+}
