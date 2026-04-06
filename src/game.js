@@ -53,6 +53,7 @@ class PokerGame {
     this.currentBet = 0;
     this.currentPlayerIndex = 0;
     this.lastRaiserIndex = -1;
+    this.lastRaiseIncrement = this.bigBlind; // NLH: 直前レイズの増加分（最低レイズ額計算用）
     this.actionLog = [];
     this.lastWinners = [];
     this.lastPot = 0;
@@ -74,6 +75,7 @@ class PokerGame {
     this.communityCards = [];
     this.pot = 0;
     this.currentBet = 0;
+    this.lastRaiseIncrement = this.bigBlind;
     this.actionLog = [];
     this.lastWinners = [];
     this.lastPot = 0;
@@ -114,6 +116,16 @@ class PokerGame {
     return this.players.filter(p => !p.folded);
   }
 
+  // startIdx から（含む）最初のチップを持つプレイヤーを探す（デッドボタン用）
+  firstActiveFrom(startIdx) {
+    const n = this.players.length;
+    for (let i = 0; i < n; i++) {
+      const idx = (startIdx + i) % n;
+      if (this.players[idx].chips > 0) return idx;
+    }
+    return startIdx; // フォールバック
+  }
+
   // startIdx の次からアクティブなプレイヤーを探す（時計回り）
   firstActiveAfter(startIdx) {
     const n = this.players.length;
@@ -126,15 +138,17 @@ class PokerGame {
   }
 
   getSBIndex() {
-    const count = this.players.length;
-    if (count === 2) return this.dealerIndex;
-    return (this.dealerIndex + 1) % count;
+    // ヘッズアップ（チップあり2人）: BTN = SB（先にアクション）
+    if (this.activePlayers.length <= 2) {
+      return this.firstActiveFrom(this.dealerIndex);
+    }
+    // デッドボタン方式: ボタンが空席でも次のアクティブプレイヤーへスキップ
+    return this.firstActiveFrom((this.dealerIndex + 1) % this.players.length);
   }
 
   getBBIndex() {
-    const count = this.players.length;
-    if (count === 2) return (this.dealerIndex + 1) % count;
-    return (this.dealerIndex + 2) % count;
+    const sbIdx = this.getSBIndex();
+    return this.firstActiveFrom((sbIdx + 1) % this.players.length);
   }
 
   postBlinds() {
@@ -150,6 +164,7 @@ class PokerGame {
     this.placeBet(bbPlayer, bbAmount);
 
     this.currentBet = bbAmount;
+    this.lastRaiseIncrement = this.bigBlind; // ブラインド後はBBがレイズ基準
 
     // プリフロップ: UTG（BBの次のアクティブプレイヤー）から
     this.currentPlayerIndex = this.firstActiveAfter(bbIdx);
@@ -228,6 +243,7 @@ class PokerGame {
       case Action.BET: {
         const betAmount = Math.max(this.bigBlind, Math.floor(amount));
         this.placeBet(player, betAmount);
+        this.lastRaiseIncrement = player.currentBet; // BET: 増加分 = ベット額全体
         this.currentBet = player.currentBet;
         this.lastRaiserIndex = playerIndex;
         this.resetHasActed(playerIndex);
@@ -236,9 +252,12 @@ class PokerGame {
       }
 
       case Action.RAISE: {
-        const minRaise = this.currentBet + this.bigBlind;
-        const raiseTotal = Math.max(minRaise, Math.floor(amount) + toCall);
+        // NLH ミニマムレイズ = 直前ベット + 直前レイズ増加分
+        const prevTableBet = this.currentBet;
+        const minRaiseChips = (prevTableBet + this.lastRaiseIncrement) - player.currentBet;
+        const raiseTotal = Math.max(minRaiseChips, Math.floor(amount) + toCall);
         this.placeBet(player, raiseTotal);
+        this.lastRaiseIncrement = player.currentBet - prevTableBet; // 実際のレイズ増加分を記録
         this.currentBet = player.currentBet;
         this.lastRaiserIndex = playerIndex;
         this.resetHasActed(playerIndex);
@@ -336,6 +355,7 @@ class PokerGame {
       p.hasActed = false;
     }
     this.currentBet = 0;
+    this.lastRaiseIncrement = this.bigBlind; // ストリート開始時にリセット
 
     const canAct = this.players.filter(p => !p.folded && !p.isAllIn);
 
@@ -410,13 +430,11 @@ class PokerGame {
 
   nextHand() {
     // 呼び出し元（ui.js）で state === COMPLETE であることを保証済み
-    // 直接代入でのバイパスを廃止し、FSM 経由のみで遷移する
     this.transition(GameState.WAITING);
 
-    // ディーラーボタンを移動
-    do {
-      this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
-    } while (this.players[this.dealerIndex].chips <= 0);
+    // デッドボタン方式: バストした空席も飛ばさず常に1つ進める
+    // → ボタンが一周する公平性を保ち、誰かが2回連続でBBを払う状況を防ぐ
+    this.dealerIndex = (this.dealerIndex + 1) % this.players.length;
   }
 
   _bb(chips) {

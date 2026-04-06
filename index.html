@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';">
   <title>Luxu's Poker</title>
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
 
@@ -73,6 +75,7 @@
     <!-- ヘッダー -->
     <div class="game-header">
       <div class="game-header-right">
+        <button class="hdr-btn quit-hdr-btn" onclick="backToSetup()">退席</button>
         <div class="theme-wrap">
           <button class="hdr-btn theme-btn" onclick="toggleThemeMenu()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -99,6 +102,26 @@
               </button>
               <button class="theme-opt" data-theme="luxus"    onclick="setTheme('luxus')">
                 <span class="theme-swatch" style="background:linear-gradient(135deg,#1a1e2e,#090b12)"></span>Luxu's
+              </button>
+            </div>
+
+            <div class="theme-divider"></div>
+            <p class="theme-menu-title">背景デザイン</p>
+            <div class="theme-grid">
+              <button class="bg-opt active" data-bg="default" onclick="setBgTheme('default')">
+                <span class="theme-swatch" style="background:#060c18"></span>Solid
+              </button>
+              <button class="bg-opt" data-bg="stars" onclick="setBgTheme('stars')">
+                <span class="theme-swatch" style="background:radial-gradient(ellipse,#1a2c50 10%,#060c18);background-image:radial-gradient(2px 2px at 20% 25%,#fff,transparent),radial-gradient(2px 2px at 60% 15%,rgba(255,255,255,.9),transparent),radial-gradient(1.5px 1.5px at 80% 60%,#fff,transparent),radial-gradient(1px 1px at 40% 70%,rgba(255,255,255,.8),transparent)"></span>Stars
+              </button>
+              <button class="bg-opt" data-bg="glow" onclick="setBgTheme('glow')">
+                <span class="theme-swatch" style="background:radial-gradient(ellipse at 50% 70%,rgba(80,150,255,.7) 0%,rgba(40,80,200,.3) 35%,#060c18 70%)"></span>Glow
+              </button>
+              <button class="bg-opt" data-bg="velvet" onclick="setBgTheme('velvet')">
+                <span class="theme-swatch" style="background:repeating-linear-gradient(45deg,rgba(255,255,255,.13) 0,rgba(255,255,255,.13) 1px,#060c18 1px,#060c18 8px),repeating-linear-gradient(-45deg,rgba(255,255,255,.09) 0,rgba(255,255,255,.09) 1px,transparent 1px,transparent 8px)"></span>Velvet
+              </button>
+              <button class="bg-opt" data-bg="nebula" onclick="setBgTheme('nebula')">
+                <span class="theme-swatch" style="background:radial-gradient(ellipse at 20% 30%,rgba(130,50,240,.6),transparent 55%),radial-gradient(ellipse at 75% 65%,rgba(30,100,230,.55),transparent 50%),#060c18"></span>Nebula
               </button>
             </div>
 
@@ -169,9 +192,9 @@
 
   </div>
 
-  <script src="src/card.js?v=17"></script>
-  <script src="src/evaluator.js?v=17"></script>
-  <script src="src/game.js?v=17"></script>
-  <script src="src/ui.js?v=17"></script>
+  <script src="src/card.js?v=26"></script>
+  <script src="src/evaluator.js?v=26"></script>
+  <script src="src/game.js?v=26"></script>
+  <script src="src/ui.js?v=26"></script>
 </body>
 </html>
