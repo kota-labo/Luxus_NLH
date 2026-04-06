@@ -4,11 +4,11 @@ let game = null;
 const BB = 10;
 
 const SEATS = {
-  2: [[50,74],[50,26]],
+  2: [[50,86],[50,14]],   // テーブル下端/上端ぎりぎり外側でコンテンツと重ならない
   3: [[50,74],[18,32],[82,32]],
-  4: [[50,74],[14,50],[50,26],[86,50]],
+  4: [[50,74],[14,50],[50,14],[86,50]],
   5: [[50,74],[13,58],[24,23],[76,23],[87,58]],
-  6: [[50,74],[12,58],[21,23],[50,25],[79,23],[88,58]],
+  6: [[50,74],[12,58],[21,16],[50,12],[79,16],[88,58]],
 };
 const COLORS = ['#1e88e5','#8e24aa','#00897b','#e53935','#fb8c00','#43a047'];
 
@@ -259,7 +259,10 @@ function renderPlayers() {
   const dbtn = document.createElement('div');
   dbtn.className = 'dealer-btn-chip';
   // 座席位置からテーブル中央(50,50)へ30%引き寄せた位置（テーブルリム上）
-  dbtn.style.left = (dPos[0] * 0.70 + 50 * 0.30) + '%';
+  // 2人テーブルは上下中央線上に集中するためDボタンを横にオフセット
+  const dLeftBase = dPos[0] * 0.70 + 50 * 0.30;
+  const dOffset   = dPos[1] >= 60 ? 12 : 0;
+  dbtn.style.left = (dLeftBase + dOffset) + '%';
   dbtn.style.top  = (dPos[1] * 0.70 + 50 * 0.30) + '%';
   dbtn.textContent = 'D';
   el.appendChild(dbtn);
@@ -316,6 +319,15 @@ function mkBtn(cls, html) {
   b.className = `action-btn ${cls}`;
   b.innerHTML = html; return b;
 }
+function mkActionBar() {
+  const bar = mkBar();
+  const q = document.createElement('button');
+  q.className = 'action-btn quit-btn';
+  q.textContent = '退席';
+  q.onclick = backToSetup;
+  bar.appendChild(q);
+  return bar;
+}
 
 // ------- アクションレンダリング -------
 function renderActions() {
@@ -324,14 +336,17 @@ function renderActions() {
 
   // オールインランアウト中
   if (isRunout()) {
-    const bar = mkBar();
-    bar.innerHTML = '<span class="waiting-msg">ALL IN — RUNOUT</span>';
+    const bar = mkActionBar();
+    const msg = document.createElement('span');
+    msg.className = 'waiting-msg';
+    msg.textContent = 'ALL IN — RUNOUT';
+    bar.appendChild(msg);
     el.appendChild(bar); return;
   }
 
   // SHOWDOWN / COMPLETE
   if (game.state === GameState.COMPLETE || game.state === GameState.SHOWDOWN) {
-    const bar = mkBar();
+    const bar = mkActionBar();
     const b   = mkBtn('deal', 'NEXT HAND'); b.onclick = startNewHand;
     bar.appendChild(b); el.appendChild(bar); return;
   }
@@ -340,7 +355,7 @@ function renderActions() {
 
   // フォールド済み → NEXT HAND + CPU続行
   if (p.folded && game.currentPlayerIndex !== 0) {
-    const bar = mkBar();
+    const bar = mkActionBar();
     const b   = mkBtn('deal', 'NEXT HAND'); b.onclick = fastForwardHand;
     bar.appendChild(b); el.appendChild(bar);
     if (game.state !== GameState.COMPLETE && game.state !== GameState.SHOWDOWN)
@@ -351,9 +366,13 @@ function renderActions() {
   // CPU ターン中
   if (game.currentPlayerIndex !== 0 || p.isAllIn) {
     const cur = game.getCurrentPlayer();
-    const bar = mkBar();
-    if (cur && cur.id !== 0)
-      bar.innerHTML = `<span class="waiting-msg">${cur.name}'s turn...</span>`;
+    const bar = mkActionBar();
+    if (cur && cur.id !== 0) {
+      const msg = document.createElement('span');
+      msg.className = 'waiting-msg';
+      msg.textContent = `${cur.name}'s turn...`;
+      bar.appendChild(msg);
+    }
     el.appendChild(bar); return;
   }
 
@@ -361,7 +380,7 @@ function renderActions() {
   const valid  = game.getValidActions(p);
   const toCall = game.currentBet - p.currentBet;
 
-  const bar = mkBar();
+  const bar = mkActionBar();
 
   // ── 左グループ: FOLD / CHECK / CALL ──
   const leftGrp = mkGroup();
@@ -451,6 +470,7 @@ function showSlider(act) {
 
   document.getElementById('actions').innerHTML=`
     <div class="action-bar">
+      <button class="action-btn quit-btn" onclick="backToSetup()">退席</button>
       <div class="raise-wrap">
         <div class="raise-presets">${presetBtns}</div>
         <div class="raise-input-row">

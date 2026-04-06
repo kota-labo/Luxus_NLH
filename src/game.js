@@ -205,6 +205,9 @@ class PokerGame {
       throw new Error(`無効なアクション: ${action}`);
     }
 
+    // amount を安全な非負整数に正規化（NaN / Infinity / 負数によるチップ破壊を防ぐ）
+    amount = Number.isFinite(amount) ? Math.floor(Math.max(0, amount)) : 0;
+
     const toCall = this.currentBet - player.currentBet;
 
     switch (action) {
@@ -287,7 +290,8 @@ class PokerGame {
       winner.chips += this.pot;
       this.addLog(`${winner.name}  wins  ${this._bb(this.pot)} BB  (all others fold)`);
       this.pot = 0;
-      this.state = GameState.SHOWDOWN;
+      // FSM 経由で遷移（直接代入は状態チェックをバイパスするため禁止）
+      this.transition(GameState.SHOWDOWN);
       this.transition(GameState.COMPLETE);
       return true;
     }
@@ -405,7 +409,8 @@ class PokerGame {
   }
 
   nextHand() {
-    this.state = GameState.COMPLETE;
+    // 呼び出し元（ui.js）で state === COMPLETE であることを保証済み
+    // 直接代入でのバイパスを廃止し、FSM 経由のみで遷移する
     this.transition(GameState.WAITING);
 
     // ディーラーボタンを移動
